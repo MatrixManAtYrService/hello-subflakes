@@ -1,0 +1,18 @@
+[package]
+name = "hello-py"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Python FFI bindings for hello-rs"
+
+[lib]
+name = "hello_py"
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py310"] }
+hello-rs = { path = "../hello-rs" }
+
+[profile.release]
+strip = true
