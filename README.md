@@ -90,6 +90,38 @@ Which might be good or bad, depending on how you feel about remixes.
 └── hello-web/         # Browser application
 ```
 
+## Local Remotes
+
+I'm not a fan of monorepo's generally, but if I've bundled some subflakes together by nesting them under a parent flake, it's because:
+
+- Either the subflake outputs are intermediate artifacts and are not re-exported for user consumption as outpts of the parent flake
+- or they are also outputs of the parent flake, but they're to be released with the same version number.
+
+However, in development, I still want to be able to use git to vary one subflake while keeping another at a fixed commit.
+e.g. I want to be able to `git bisect` only one subflake.
+For this reason the subflake repositories are not remote but included in the parent flake.
+
+So my strategy is to create repositories in `./subflake-git` like `git init --bare` and then use them as the "remote".
+So the workflow to make a new subflake which is a nested repo is:
+
+```
+# create empty local repo
+mkdir subflake-git/hello-foo
+cd subflake-git/hello-foo
+git init --bare
+cd ../..
+
+# clone it for use as a subflake
+# but don't use `git clone` (that will give you an absolute path)
+mkdir hello-foo
+cd hello-foo
+git init
+git remote add local ../subflake-git/hello-foo
+# commit your files
+git push local main
+```
+I'm not sure if this is a good idea yet, trying it out...
+
 ## Warnings
 
 #### AI Disclaimer
@@ -104,3 +136,13 @@ I'll try to document them here as I explore.
 #### Cache Complexity
 Since each subflake has its own `flake.lock` it may be necessary to run `nix flake update {some-subflake}` more often than you'd expect.
 I've not decided if this is a bug or a feature.
+
+#### Absolute Paths
+This is a valid nix flake input: `git+file:///some/path`
+This is not, supposing you care about purity: `path:../neigbor-subflake`
+
+This is also not valid: `git+path:../localrepo/neighbor-subflake`
+But I think that's just an omission.
+I'll request it be added.
+
+Until then these flakes are using absolute paths: `git:file:///Users/matt/src/hello-subflake/subflake-git`

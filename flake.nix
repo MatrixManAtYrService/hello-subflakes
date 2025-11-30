@@ -5,11 +5,11 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Relative path input to hello-py subflake
-    hello-py.url = "path:./hello-py";
+    # Git input to hello-py local repository
+    hello-py.url = "git+file:///Users/matt/src/hello-subflake/subflake-git/hello-py?ref=main";
 
-    # Relative path input to hello-web subflake
-    hello-web.url = "path:./hello-web";
+    # Git input to hello-web local repository
+    hello-web.url = "git+file:///Users/matt/src/hello-subflake/subflake-git/hello-web?ref=main";
 
     pyproject-nix = {
       url = "github:pyproject-nix/pyproject.nix";
@@ -112,7 +112,6 @@
           # Re-export packages from subflakes
           hello-py-wheel = hello-py.packages.${system}.wheel;
           hello-py-env = hello-py.packages.${system}.default;
-          hello-rs = hello-py.packages.${system}.hello-rs;
           # WebAssembly packages
           hello-web = hello-web.packages.${system}.default;
           hello-wasm = hello-web.packages.${system}.hello-wasm;
