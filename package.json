@@ -1,0 +1,15 @@
+{
+  "name": "hello-web",
+  "version": "0.1.0",
+  "description": "Browser-based demo of hello-rs via WebAssembly",
+  "type": "module",
+  "scripts": {
+    "transpile": "jco transpile ../hello-wasm.wasm -o dist/bindings --tla-compat --no-nodejs-compat"
+  },
+  "dependencies": {
+    "@bytecodealliance/preview2-shim": "^0.17.0"
+  },
+  "devDependencies": {
+    "@bytecodealliance/jco": "^1.15.0"
+  }
+}

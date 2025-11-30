@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello WASM Demo</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "@bytecodealliance/preview2-shim/cli": "./node_modules/@bytecodealliance/preview2-shim/lib/browser/cli.js",
+        "@bytecodealliance/preview2-shim/io": "./node_modules/@bytecodealliance/preview2-shim/lib/browser/io.js",
+        "@bytecodealliance/preview2-shim/": "./node_modules/@bytecodealliance/preview2-shim/lib/browser/"
+      }
+    }
+    </script>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      h1 {
+        color: #333;
+      }
+      .input-group {
+        margin: 20px 0;
+      }
+      input[type="text"] {
+        padding: 10px;
+        font-size: 16px;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        width: 300px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #result {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        font-size: 18px;
+        min-height: 30px;
+        color: #28a745;
+        font-weight: bold;
+      }
+      #result:empty::before {
+        content: "Enter a name and click the button...";
+        color: #999;
+        font-weight: normal;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello WASM Demo</h1>
+    <p>This demo calls a Rust function compiled to WebAssembly!</p>
+
+    <div class="input-group">
+      <input
+        type="text"
+        id="nameInput"
+        placeholder="Enter your name"
+        value=""
+      >
+      <button onclick="sayHello()">Say Hello</button>
+    </div>
+
+    <div id="result"></div>
+
+    <script type="module">
+      import { greeter, $init } from './dist/bindings/hello_wasm.js';
+
+      // Wait for WASM initialization
+      await $init;
+
+      async function sayHello() {
+        const nameInput = document.getElementById('nameInput');
+        const result = document.getElementById('result');
+        const name = nameInput.value.trim();
+
+        if (!name) {
+          result.textContent = 'Please enter a name!';
+          result.style.color = '#dc3545';
+          return;
+        }
+
+        try {
+          // Call the WASM component's hello function
+          const greeting = greeter.hello(name);
+          result.textContent = greeting;
+          result.style.color = '#28a745';
+        } catch (error) {
+          result.textContent = `Error: ${error.message}`;
+          result.style.color = '#dc3545';
+        }
+      }
+
+      // Make sayHello available globally for the button onclick
+      window.sayHello = sayHello;
+
+      // Allow pressing Enter in the input field
+      document.getElementById('nameInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          sayHello();
+        }
+      });
+    </script>
+  </body>
+</html>
