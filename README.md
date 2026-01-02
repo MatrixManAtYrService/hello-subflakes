@@ -101,7 +101,19 @@ Think twice before assuming that you're not looking at insanity.
 
 #### Experimental
 It seems like a workable arrangement, but I'm sure there are undiscovered gotchas.
-I'll try to document them here as I explore.
+Document them here as I explore.
+
+
+**Accidental Overrides from a Subflake**
+Some tools will use a root dir and search all subfolders for files with a certain pattern in their name (e.g. pytest looks for `test_.*.py`).  Sometimes, I'll add a subflake and get it working, and then when I zoom out to the parent flake, it's suddenly broken because a config file in a subflake is being consumed by the parent flake as if it is intended to configure the parent flake (discovered when `tsconfig.json` from a child was configuring a parent).
+
+**Accidental Inheritance from a Parent Flake**
+If your devshells involve setting environment variables, and then you descend to a subflake and enter a new devshell, you'll still have the parent variables.
+In the case of `PYTHONPATH` this can lead to packages from the parent taking priority over the child.
+
+The above two items have me thinking that using the filesystem structure to indicate flakes as parent/child is not enough separation.
+They'd be avoided if all subflakes were defined at the same level.
+I haven't explored consequences of making this change yet.
 
 #### Cache Complexity
 Since each subflake has its own `flake.lock` it may be necessary to run `nix flake update` more often than you'd expect.
